@@ -8,14 +8,22 @@
             <div class="flex items-center justify-center my-5 text-gray-300 space-x-2">
                 <span class="h-[1px] w-16 bg-gray-200"></span>
                 <span>账号密码登录</span>
-                <span class="h-[1px] w-16 bg-gray-200"></span>
+                <span class="line"></span>
             </div>
-            <el-form :model="form" class="w-[250px]">
-                <el-form-item>
-                    <el-input v-model="form.username" placeholder="请输入用户名"/>
+            <el-form ref="formRef" :rules="rules" :model="form" class="w-[250px]">
+                <el-form-item prop="username">
+                    <el-input v-model="form.username" placeholder="请输入用户名">
+                        <template #prefix>
+                            <el-icon><user /></el-icon>
+                        </template>
+                    </el-input>
                 </el-form-item>
-                <el-form-item>
-                    <el-input v-model="form.password" type="password" show-password placeholder="请输入密码"/>
+                <el-form-item prop="password">
+                    <el-input type="password" v-model="form.password" placeholder="请输入密码" show-password>
+                        <template #prefix>
+                            <el-icon><lock /></el-icon>
+                        </template>
+                    </el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button round color="#626aef" class="w-[250px]" type="primary" @click="onSubmit">登 录</el-button>
@@ -26,15 +34,61 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive,ref } from 'vue'
+import { login } from "~/api/manager";
 
-// do not use same name with ref
 const form = reactive({
   username:"",
   password:""
 })
 
+const rules = {
+    username:[
+        { 
+            required: true, 
+            message: '用户名不能为空', 
+            trigger: 'blur'
+        },
+    ],
+    password:[
+        { 
+            required: true, 
+            message: '密码不能为空', 
+            trigger: 'blur'
+        },
+    ],
+}
+
+const formRef = ref(null)
+
 const onSubmit = () => {
-  console.log('submit!')
+    formRef.value.validate((valid)=>{
+        if(!valid){
+            return false
+        }
+        login(form.username,form.password)
+        .then(res=>{
+            console.log(res.data.data);
+
+            // 提示成功
+            ElNotification({
+                message: "登录成功",
+                type: 'success',
+                duration:3000
+            })
+
+            // 存储token和用户相关信息，下节课讲
+
+            // 跳转到后台首页
+            router.push("/")
+        })
+        .catch(err=>{
+            ElNotification({
+                message: err.response.data.msg || "请求失败",
+                type: 'error',
+                duration:3000
+            })
+        })
+    })
 }
 </script>
