@@ -36,14 +36,14 @@
 <script setup>
 import { reactive,ref } from 'vue'
 import { login } from "~/api/manager"
-import { useRouter } from 'vue-router'
+import { useStore } from "vuex";
 import { ElNotification } from 'element-plus'
 
-const router = useRouter()
+const store = useStore();
 
 const form = reactive({
-  username:"",
-  password:""
+  username:"admin",
+  password:"admin"
 })
 
 const rules = {
@@ -70,26 +70,11 @@ const onSubmit = () => {
         if(!valid){
             return false
         }
-        login(form)
-        .then(res=>{
-            console.log(res.data);
-
-            // 提示成功
-            ElNotification({
-                message: "登录成功",
-                type: 'success',
-                duration:3000
-            })
-            // 跳转到后台首页
-            router.push("/")
-        })
-        .catch(err=>{
-            ElNotification({
-                message: err.response.data.msg || "请求失败",
-                type: 'error',
-                duration:3000
-            })
-        })
+        store.dispatch("userLoginAction", form);
+        ElMessage({
+            message: "成功登录.",
+            type: "success",
+        });
     })
 }
 </script>

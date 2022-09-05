@@ -30,4 +30,14 @@ const router = createRouter({
   routes,
 });
 
+// 导航守卫, 没登录跳转登录页
+router.beforeEach((to) => {
+  // if (to.path === "/") return true;
+  if (to.path !== "/login") {
+    if (!window.localStorage.getItem("token")) {
+      return "/login";
+    }
+  }
+});
+
 export default router;
