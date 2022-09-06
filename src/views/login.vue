@@ -35,7 +35,6 @@
 
 <script setup>
 import { reactive,ref } from 'vue'
-import { login } from "~/api/manager"
 import { useStore } from "vuex";
 import { ElNotification } from 'element-plus'
 

@@ -13,6 +13,6 @@ export function login(data) {
 
 export function userInfo() {
     return request({
-        url: "/user",
+        url: "/userinfo",
     });
   }

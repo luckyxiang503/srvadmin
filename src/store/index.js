@@ -1,5 +1,5 @@
 import { createStore } from "vuex";
-import { login, userInfo } from "~/api/manager";
+import { login, userInfo } from "~/api/user";
 import router from "~/router";
 
 const store = createStore({
@@ -31,33 +31,18 @@ const store = createStore({
       const resLogin = await login(payload);
       //    2. 获取到token
       const token = resLogin.token;
-      console.log(token)
       //    3. token 存到 vuex & 浏览器缓存中
       commit("changeToken", token);
       window.localStorage.setItem("token", token);
       //    4. 请求用户信息接口
       const resUser = await userInfo();
-      const nickname = resUser.nickname;
+      console.log(resUser)
+      const nickname = resUser.username;
       //    5. username 存到 vuex 和 浏览器缓存中
       commit("changeNickname", nickname);
       window.localStorage.setItem("nickname", nickname);
       //    6. 跳转到首页
       await router.push("/");
-    },
-
-    /**
-     * @desc 该方法解决页面刷新vuex 中数据丢失问题
-     * @param state
-     */
-    loadLocalStorage({ commit }) {
-      const token = window.localStorage.getItem("token");
-      if (token) {
-        commit("changeToken", token);
-      }
-      const nickname = window.localStorage.getItem("nickname");
-      if (nickname) {
-        commit("changeNickname", nickname);
-      }
     },
   },
   // 多个模块之前可以通过这里管理
