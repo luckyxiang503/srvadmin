@@ -36,7 +36,7 @@
 <script setup>
 import { reactive,ref } from 'vue'
 import { useStore } from "vuex";
-import { ElNotification } from 'element-plus'
+import { ElMessage } from "element-plus";
 
 const store = useStore();
 
@@ -73,6 +73,7 @@ const onSubmit = () => {
         ElMessage({
             message: "成功登录.",
             type: "success",
+            duration: 1000,
         });
     })
 }

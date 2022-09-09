@@ -1,12 +1,12 @@
 <template>
-    <el-container class="layout-container">
+    <el-container class="layout-container h-screen">
       <!-- 顶部 -->
-        <el-header class=" bg-gray-300">
+        <el-header class=" bg-gray-400">
           <el-row :gutter="20">
             <el-col :span="6">
               <div class="headtitle">
                 <el-icon style="margin-right: 12px; margin-top: 1px"><HomeFilled /></el-icon>
-                <router-link to="/">ServerAdmin</router-link>
+                <span>ServerAdmin</span>
               </div>
             </el-col>
             <el-col :span="15"></el-col>
@@ -18,9 +18,8 @@
                   <el-icon style="margin-left: 8px; margin-top: 1px"><ArrowDown /></el-icon>
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item>用户信息</el-dropdown-item>
                     <el-dropdown-item>修改密码</el-dropdown-item>
-                    <el-dropdown-item>退出登录</el-dropdown-item>
+                    <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
                   </el-dropdown-menu>
                   </template>
                 </el-dropdown>
@@ -32,30 +31,36 @@
         <!-- 左边侧边栏 -->
         <el-aside width="300px">
           <el-scrollbar>
-            <el-menu :router="true">
-              <el-menu-item index="/index">
+            <el-menu
+            active-text-color="#ffd04b"
+            background-color="#545c64"
+            text-color="#fff"
+            >
+              <el-menu-item index="1" @click="open('/index')">
                 <template #title>
-                  <el-icon><House /></el-icon>主页
+                  <el-icon><House /></el-icon>
+                  <span>主页</span>
                 </template>
               </el-menu-item>
-              <el-menu-item index="/server">
+              <el-menu-item index="2" @click="open('/server')">
                 <template #title>
-                  <el-icon><setting /></el-icon>服务管理
+                  <el-icon><setting /></el-icon>
+                  <span>服务管理</span>
                 </template>
               </el-menu-item>
-              <el-sub-menu>
+              <el-sub-menu index="3">
                 <template #title>
                   <el-icon><Connection /></el-icon>主机管理
                 </template>
-                  <el-menu-item index="/host/list">主机信息</el-menu-item>
-                  <el-menu-item>添加主机</el-menu-item>
+                  <el-menu-item index="3-1" @click="open('/hostlist')">主机信息</el-menu-item>
+                  <el-menu-item index="3-2" @click="open('/addhost')">添加主机</el-menu-item>
               </el-sub-menu>
-              <el-sub-menu index="3">
+              <el-sub-menu index="4">
                 <template #title>
                   <el-icon><User /></el-icon>用户管理
                 </template>
-                  <el-menu-item index="/user/list">用户信息</el-menu-item>
-                  <el-menu-item>添加用户</el-menu-item>
+                  <el-menu-item index="4-1" @click="open('/userlist')">用户信息</el-menu-item>
+                  <el-menu-item index="4-2" @click="open('/adduser')">添加用户</el-menu-item>
               </el-sub-menu>
             </el-menu>
           </el-scrollbar>
@@ -70,9 +75,27 @@
 
 
 <script setup>
-import { ref } from 'vue'
+import { useStore } from "vuex";
+import { ElMessage } from "element-plus";
+import { useRouter } from 'vue-router'
 
-const nickname = window.localStorage.getItem("nickname")
+const router = useRouter()
+
+function open(path) {
+  router.push({ path: path })
+}
+
+const nickname = sessionStorage.getItem("nickname")
+const store = useStore();
+
+const logout = () => {
+  store.dispatch("userLogoutAction");
+  ElMessage({
+      message: "成功登出",
+      type: "success",
+      duration: 1000,
+  });
+}
 
 </script>
 
@@ -83,13 +106,14 @@ const nickname = window.localStorage.getItem("nickname")
 }
 .layout-container .el-header .el-row {
   height: 100%;
-
 }
 .layout-container .el-menu {
   border-right: none;
+  height: 100%;
 }
-.layout-container .el-main {
-  padding: 0;
+.layout-container .el-aside {
+  height: 100%;
+  background-color: rgb(84, 92, 100);
 }
 .layout-container .toolbar {
   display: inline-flex;
