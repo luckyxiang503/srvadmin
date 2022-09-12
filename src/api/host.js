@@ -1,14 +1,10 @@
 import request from '~/utils/axios'
 
 
-export function getHostlist(skip, limit) {
+export function getHostlist() {
     return request({
-        url: '/hosts',
+        url: '/allhost',
         method: "get",
-        params: {
-            skip: skip,
-            limit: limit
-        },
         timeout: 1000,
     });
 }
@@ -24,10 +20,19 @@ export function deleteHost(host) {
     });
 }
 
-export function alterHost(data) {
+export function addHost(data) {
     return request({
         url: '/host',
         method: "post",
+        data: data,
+        timeout: 1000,
+    });
+}
+
+export function updateHost(data) {
+    return request({
+        url: '/host',
+        method: "put",
         data: data,
         timeout: 1000,
     });

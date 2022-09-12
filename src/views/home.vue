@@ -1,5 +1,5 @@
 <template>
-    <el-container class="layout-container h-screen">
+    <el-container class="layout-container">
       <!-- 顶部 -->
         <el-header class=" bg-gray-400">
           <el-row :gutter="20">
@@ -18,15 +18,15 @@
                   <el-icon style="margin-left: 8px; margin-top: 1px"><ArrowDown /></el-icon>
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item>修改密码</el-dropdown-item>
+                    <el-dropdown-item>修改信息</el-dropdown-item>
                     <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
                   </el-dropdown-menu>
                   </template>
                 </el-dropdown>
               </div>
-            </el-col>
+            </el-col> 
           </el-row>
-        </el-header>
+        </el-header>     
       <el-container>
         <!-- 左边侧边栏 -->
         <el-aside width="300px">
@@ -48,20 +48,18 @@
                   <span>服务管理</span>
                 </template>
               </el-menu-item>
-              <el-sub-menu index="3">
+              <el-menu-item index="3" @click="open('/hostlist')">
                 <template #title>
-                  <el-icon><Connection /></el-icon>主机管理
+                  <el-icon><Connection /></el-icon>
+                  <span>主机管理</span>
                 </template>
-                  <el-menu-item index="3-1" @click="open('/hostlist')">主机信息</el-menu-item>
-                  <el-menu-item index="3-2" @click="open('/addhost')">添加主机</el-menu-item>
-              </el-sub-menu>
-              <el-sub-menu index="4">
+              </el-menu-item>
+              <el-menu-item index="4" @click="open('/userlist')">
                 <template #title>
-                  <el-icon><User /></el-icon>用户管理
+                  <el-icon><User /></el-icon>
+                  <span>用户管理</span>
                 </template>
-                  <el-menu-item index="4-1" @click="open('/userlist')">用户信息</el-menu-item>
-                  <el-menu-item index="4-2" @click="open('/adduser')">添加用户</el-menu-item>
-              </el-sub-menu>
+              </el-menu-item>
             </el-menu>
           </el-scrollbar>
         </el-aside>
@@ -75,18 +73,18 @@
 
 
 <script setup>
+import {ref} from 'vue'
 import { useStore } from "vuex";
 import { ElMessage } from "element-plus";
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const nickname = sessionStorage.getItem("nickname")
+const store = useStore();
 
 function open(path) {
   router.push({ path: path })
 }
-
-const nickname = sessionStorage.getItem("nickname")
-const store = useStore();
 
 const logout = () => {
   store.dispatch("userLogoutAction");
@@ -100,6 +98,9 @@ const logout = () => {
 </script>
 
 <style scoped>
+.layout-container{
+  height: 100vh;
+}
 .layout-container .el-header {
   position: relative;
   height: 80px;
@@ -114,6 +115,9 @@ const logout = () => {
 .layout-container .el-aside {
   height: 100%;
   background-color: rgb(84, 92, 100);
+}
+.layout-container .el-main {
+  /* height: 800px; */
 }
 .layout-container .toolbar {
   display: inline-flex;

@@ -32,13 +32,14 @@ instance.interceptors.response.use(
     },
     (err) => {
         ElMessage({
-            message: "请求失败",
+            message: err.response.data.detail,
             type: "error",
             duration: 1000,
         });
         if (err.response.status == 401) {
             router.push('/login');
         }
+        return false
     }
 );
 

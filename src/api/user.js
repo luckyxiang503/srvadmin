@@ -19,14 +19,10 @@ export function userInfo() {
     });
 }
 
-export function getUserlist(skip, limit) {
+export function getUserlist() {
     return request({
-        url: '/users',
+        url: '/alluser',
         method: "get",
-        params: {
-            skip: skip,
-            limit: limit
-        },
         timeout: 1000,
     });
 }
@@ -42,10 +38,19 @@ export function deleteUser(username) {
     });
 }
 
-export function alterUser(data) {
+export function addUser(data) {
     return request({
         url: '/user',
         method: "post",
+        data: data,
+        timeout: 1000,
+    });
+}
+
+export function updateUser(data) {
+    return request({
+        url: '/user',
+        method: "put",
         data: data,
         timeout: 1000,
     });
