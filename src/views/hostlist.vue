@@ -143,14 +143,6 @@ function resetForm(){
   }
 }
 
-// ts语法，声明接口类型
-// interface Host {
-//   host: string
-//   port: Number
-//   user: string
-//   password: string
-// }
-
 // 搜索框与数据展示来源
 const search = ref('')
 const filterTableData = computed(() =>

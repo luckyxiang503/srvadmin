@@ -26,7 +26,7 @@
     </el-form>
     <template #footer>
       <span class="dialog-footer">
-        <el-button type="primary" @click="submitForm">提交</el-button>
+        <el-button type="primary" @click="submitForm">添加</el-button>
         <el-button @click="resetForm">取消</el-button>
       </span>
     </template>
@@ -45,8 +45,13 @@
               <el-table-column label="主机" prop="host" />
               <el-table-column label="端口" prop="port" />
               <el-table-column label="用户" prop="user" />
-              <el-table-column label="密码" prop="password" />
-              <el-table-column label="role" prop="role" />
+              <el-table-column label="密码" prop="password"/>
+              <el-table-column label="role" prop="role">
+                <template #default="scope">
+                  <!-- <span>{{ props.row.host.rule }}</span> -->
+                  <input v-show="true" type="text" v-model="scope.row.role">
+                </template>
+              </el-table-column>
             </el-table>
           </div>
         </template>
@@ -59,7 +64,7 @@
         <el-button size="small" type="primary" @click="dialogFormVisible = true">添加安装项</el-button>
       </template>
       <template #default="scope">
-        <el-button size="small">修改</el-button>
+        <el-button size="small">编辑</el-button>
         <el-button size="small" type="danger">删除</el-button>
       </template>
     </el-table-column>
@@ -72,16 +77,9 @@ import { ref,reactive,onMounted,toRaw } from 'vue'
 import {getHostlist} from '~/api/host'
 
 const dialogFormVisible = ref(false)
-const props = { multiple: true,checkStrictly: true, }
 const data = reactive({
   hostlist: [],
   serverlist: [],
-})
-const server = reactive({
-  srvname: "",
-  mode: "",
-  tool: [],
-  host: [],
 })
 const form = reactive({
   srv: "",
@@ -102,6 +100,12 @@ const resetForm = () =>{
 }
 
 const submitForm = () =>{
+  const server = reactive({
+    srvname: "",
+    mode: "",
+    tool: [],
+    host: [],
+  })
   // 将form中数据提取出来
   server.srvname = form.srv[0]
   if (server.srvname == "base"){
@@ -113,18 +117,14 @@ const submitForm = () =>{
   for (let i of form.hostindex){
     server.host.push(data.hostlist[i])
   }
-  if (server.srvname == "mysql" || "mongodb"){
+  if (server.srvname === "mysql" || server.srvname === "mongodb"){
     for (let i in server.host){
       server.host[i].role = ""
     }
   }
+  const s = toRaw(server)
   // 将值保存在serverlist中
-  data.serverlist.push(toRaw(server))
-  // 重置server
-  server.srvname = ""
-  server.mode = ""
-  server.tool = []
-  server.host = []
+  data.serverlist.push(s)
   // 重新将form表单初始化
   dialogFormVisible.value = false
   form.srv = ""
