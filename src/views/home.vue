@@ -116,9 +116,9 @@ const logout = () => {
   height: 100%;
   background-color: rgb(84, 92, 100);
 }
-.layout-container .el-main {
-  /* height: 800px; */
-}
+/* .layout-container .el-main {
+  height: 800px;
+} */
 .layout-container .toolbar {
   display: inline-flex;
   align-items: center;
