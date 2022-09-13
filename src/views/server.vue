@@ -1,71 +1,210 @@
 <template>
-  <el-table :data="tableData" style="width: 100%">
-    <el-table-column type="expand">
-      <template #default="props">
-        <div m="4">
-          <p m="t-0 b-2">State: {{ props.row.state }}</p>
-          <p m="t-0 b-2">City: {{ props.row.city }}</p>
-          <p m="t-0 b-2">Address: {{ props.row.address }}</p>
-          <p m="t-0 b-2">Zip: {{ props.row.zip }}</p>
-          <h3>Family</h3>
-          <el-table :data="props.row.family">
-            <el-table-column label="Name" prop="name" />
-            <el-table-column label="State" prop="state" />
-            <el-table-column label="City" prop="city" />
-            <el-table-column label="Address" prop="address" />
-            <el-table-column label="Zip" prop="zip" />
-          </el-table>
-        </div>
+  <!-- 添加服务弹出窗口-->
+  <el-dialog v-model="dialogFormVisible" title="添加服务">
+    <el-form 
+      label-width="100px"
+      :model="form">
+      <el-form-item label="srvname">
+        <el-cascader v-model="form.srv" :options="servershow.server" clearable />
+      </el-form-item>
+      <el-form-item label="基础安装工具">
+        <el-select v-model="form.tool" multiple placeholder="srvname为base时生效">
+        <el-option
+          v-for="item in servershow.tool" :value="item.value"/>
+        </el-select>
+      </el-form-item>
+      <!-- 主机表格 -->
+      <el-form-item label="安装主机">
+        <el-select v-model="form.hostindex" multiple placeholder="host">
+        <el-option
+          v-for="(item, index) in data.hostlist"
+          :label="item.host"
+          :value="index"
+        />
+        </el-select>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button type="primary" @click="submitForm">提交</el-button>
+        <el-button @click="resetForm">取消</el-button>
+      </span>
+    </template>
+  </el-dialog>
+  <!-- ------------------------- -->
+  <el-scrollbar>
+    <el-table :data="data.serverlist" style="width: 100%" height="750px">
+      <el-table-column type="expand">
+        <template #default="props">
+          <div m="4">
+            <p m="t-0 b-2">srvname:  {{ props.row.srvname }}</p>
+            <p m="t-0 b-2" v-if="props.row.mode !== ''">mode:  {{ props.row.mode }}</p>
+            <p m="t-0 b-2" v-if="props.row.tool.length !== 0">tool:  {{ props.row.tool }}</p>
+            <h3>host:</h3>
+            <el-table :data="props.row.host">
+              <el-table-column label="主机" prop="host" />
+              <el-table-column label="端口" prop="port" />
+              <el-table-column label="用户" prop="user" />
+              <el-table-column label="密码" prop="password" />
+              <el-table-column label="role" prop="role" />
+            </el-table>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="服务名称" prop="srvname" />
+      <el-table-column label="安装模式" prop="mode" />
+      <!-- 表格按钮 -->
+      <el-table-column align="right">
+      <template #header>
+        <el-button size="small" type="primary" @click="dialogFormVisible = true">添加安装项</el-button>
+      </template>
+      <template #default="scope">
+        <el-button size="small">修改</el-button>
+        <el-button size="small" type="danger">删除</el-button>
       </template>
     </el-table-column>
-    <el-table-column label="服务名称" prop="date" />
-    <el-table-column label="安装模式" prop="name" />
-    <el-table-column align="right">
-    <template #header>
-      <el-button size="small" type="primary">添加安装项</el-button>
-    </template>
-    <template #default="scope">
-      <el-button size="small">修改</el-button>
-      <el-button size="small" type="danger">删除</el-button>
-    </template>
-  </el-table-column>
-  </el-table>
+    </el-table>
+  </el-scrollbar>
 </template>
 
-<script lang="ts" setup>
-import { ref } from 'vue'
+<script setup>
+import { ref,reactive,onMounted,toRaw } from 'vue'
+import {getHostlist} from '~/api/host'
 
-const tableData = [
-  {
-    date: '2016-05-03',
-    name: 'Tom',
-    state: 'California',
-    city: 'San Francisco',
-    address: '3650 21st St, San Francisco',
-    zip: 'CA 94114',
-    family: [
-      {
-        name: 'Jerry',
-        state: 'California',
-        city: 'San Francisco',
-        address: '3650 21st St, San Francisco',
-        zip: 'CA 94114',
-      },
-      {
-        name: 'Spike',
-        state: 'California',
-        city: 'San Francisco',
-        address: '3650 21st St, San Francisco',
-        zip: 'CA 94114',
-      },
-      {
-        name: 'Tyke',
-        state: 'California',
-        city: 'San Francisco',
-        address: '3650 21st St, San Francisco',
-        zip: 'CA 94114',
-      },
-    ],
-  },
-]
+const dialogFormVisible = ref(false)
+const props = { multiple: true,checkStrictly: true, }
+const data = reactive({
+  hostlist: [],
+  serverlist: [],
+})
+const server = reactive({
+  srvname: "",
+  mode: "",
+  tool: [],
+  host: [],
+})
+const form = reactive({
+  srv: "",
+  tool: [],
+  hostindex: [],
+})
+
+
+onMounted(()=>{
+  requestHostlist()
+})
+
+const resetForm = () =>{
+  dialogFormVisible.value = false
+  form.srv = ""
+  form.tool = []
+  form.hostindex = []
+}
+
+const submitForm = () =>{
+  // 将form中数据提取出来
+  server.srvname = form.srv[0]
+  if (server.srvname == "base"){
+    server.tool = form.tool
+  }
+  if (form.srv.length == 2){
+    server.mode = form.srv[1]
+  }
+  for (let i of form.hostindex){
+    server.host.push(data.hostlist[i])
+  }
+  if (server.srvname == "mysql" || "mongodb"){
+    for (let i in server.host){
+      server.host[i].role = ""
+    }
+  }
+  // 将值保存在serverlist中
+  data.serverlist.push(toRaw(server))
+  // 重置server
+  server.srvname = ""
+  server.mode = ""
+  server.tool = []
+  server.host = []
+  // 重新将form表单初始化
+  dialogFormVisible.value = false
+  form.srv = ""
+  form.tool = []
+  form.hostindex = []
+
+  console.log(data.serverlist)
+}
+
+// 后端请求数据方法
+function requestHostlist(){
+  getHostlist()
+  .then(res=>{
+    data.hostlist = res.data
+  })
+}
+
+const servershow = {
+    server: [
+    {value: "base", label: "base"},
+    {value: "jdk", label: "jdk"},
+    {value: "app", label: "app"},
+    {value: "nginx", label: "nginx"},
+    {value: "redis", label: "redis", 
+    children: [
+        {value: "redis-single", label: "redis-single"},
+        {value: "redis-cluster-one", label: "redis-cluster-one"},
+        {value: "redis-cluster-three", label: "redis-cluster-three"},
+        {value: "redis-cluster-six", label: "redis-cluster-six"},
+     ]},
+    {value: "mysql", label: "mysql", 
+    children: [
+        {value: "mysql-single", label: "mysql-single"},
+        {value: "mysql-1M1S", label: "mysql-1M1S"},
+    ]},
+    {value: "rocketmq", label: "rocketmq", 
+    children: [
+        {value: "rocketmq-single", label: "rocketmq-single"},
+        {value: "rocketmq-nM", label: "rocketmq-nM"},
+    ]},
+    {value: "mongodb", label: "mongodb", 
+    children: [
+        {value: "mongodb-single", label: "mongodb-single"},
+        {value: "mongodb-sharding", label: "mongodb-sharding"},
+    ]},
+    {value: "nacos", label: "nacos", 
+    children: [
+        {value: "nacos-single", label: "nacos-single"},
+        {value: "nacos-cluster", label: "nacos-cluster"},
+    ]},
+    {value: "zookeeper", label: "zookeeper", 
+    children: [
+        {value: "zookeeper-single", label: "zookeeper-single"},
+        {value: "zookeeper-cluster", label: "zookeeper-cluster"},
+    ]},
+  ],
+  tool: [
+    {value: "tsar"},
+    {value: "netdata"},
+    {value: "sysstat"},
+    {value: "iotop"},
+    {value: "iftop"},
+    {value: "dstat"},
+    {value: "net-tools"},
+    {value: "glances"},
+    {value: "asciinema"},
+    {value: "clamav"},
+  ],
+  role: [
+    {value: "mysql",label: "mysql",
+    children: [
+      {value: "master",label: "master",},
+      {value: "slave",label: "slave",},
+    ]},
+    {value: "mongodb",label: "mongodb",
+    children: [
+      {value: "shard ",label: "shard",},
+      {value: "configsrv",label: "configsrv",},
+      {value: "mongos",label: "mongos",},
+    ]},
+  ]
+}
 </script>
