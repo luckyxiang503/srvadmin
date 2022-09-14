@@ -4,7 +4,6 @@ import router from '~/router/index'
 
 //  创建axios 实例
 const instance = axios.create({
-    // baseURL: "http://localhost:8000",
     baseURL: "/api",
     timeout: 5000,
 });
@@ -32,7 +31,7 @@ instance.interceptors.response.use(
     },
     (err) => {
         ElMessage({
-            message: err.response.data.detail,
+            message: "请求失败",
             type: "error",
             duration: 1000,
         });

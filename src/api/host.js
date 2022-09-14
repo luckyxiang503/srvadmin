@@ -5,7 +5,6 @@ export function getHostlist() {
     return request({
         url: '/allhost',
         method: "get",
-        timeout: 1000,
     });
 }
 
@@ -16,7 +15,6 @@ export function deleteHost(host) {
         params: {
             host: host
         },
-        timeout: 1000,
     });
 }
 
@@ -25,7 +23,6 @@ export function addHost(data) {
         url: '/host',
         method: "post",
         data: data,
-        timeout: 1000,
     });
 }
 
@@ -34,6 +31,5 @@ export function updateHost(data) {
         url: '/host',
         method: "put",
         data: data,
-        timeout: 1000,
     });
 }

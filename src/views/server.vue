@@ -33,23 +33,23 @@
   </el-dialog>
   <!-- ------------------------- -->
   <el-scrollbar>
-    <el-table :data="data.serverlist" style="width: 100%" height="750px">
+    <el-table :data="data.serverlist" :default-expand-all='tableIsEdit' style="width: 100%" height="750px">
       <el-table-column type="expand">
         <template #default="props">
           <div m="4">
             <p m="t-0 b-2">srvname:  {{ props.row.srvname }}</p>
-            <p m="t-0 b-2" v-if="props.row.mode !== ''">mode:  {{ props.row.mode }}</p>
+            <p m="t-0 b-2" v-if="props.row.mode">mode:  {{ props.row.mode }}</p>
             <p m="t-0 b-2" v-if="props.row.tool.length !== 0">tool:  {{ props.row.tool }}</p>
-            <h3>host:</h3>
+            <br>
             <el-table :data="props.row.host">
-              <el-table-column label="主机" prop="host" />
+              <el-table-column label="主机" prop="ip" />
               <el-table-column label="端口" prop="port" />
               <el-table-column label="用户" prop="user" />
               <el-table-column label="密码" prop="password"/>
               <el-table-column label="role" prop="role">
                 <template #default="scope">
-                  <!-- <span>{{ props.row.host.rule }}</span> -->
-                  <input v-show="true" type="text" v-model="scope.row.role">
+                  <span v-show="!tableIsEdit">{{ scope.row.role }}</span>
+                  <input v-show="tableIsEdit" type="text" v-model="scope.row.role">
                 </template>
               </el-table-column>
             </el-table>
@@ -62,10 +62,12 @@
       <el-table-column align="right">
       <template #header>
         <el-button size="small" type="primary" @click="dialogFormVisible = true">添加安装项</el-button>
+        <el-button size="small" type="success" @click="submitServerlist">提交</el-button>
       </template>
       <template #default="scope">
-        <el-button size="small">编辑</el-button>
-        <el-button size="small" type="danger">删除</el-button>
+        <el-button size="small" v-if="!tableIsEdit" @click="tableIsEdit = true">编辑</el-button>
+        <el-button size="small" v-if="tableIsEdit" @click="tableIsEdit = false">保存</el-button>
+        <el-button size="small" type="danger" @click="serverDelete(scope.$index)">删除</el-button>
       </template>
     </el-table-column>
     </el-table>
@@ -75,8 +77,11 @@
 <script setup>
 import { ref,reactive,onMounted,toRaw } from 'vue'
 import {getHostlist} from '~/api/host'
+import {serverInstall} from '~/api/server'
+import {initWebSocket,closeWebsocket} from '~/utils/websocket'
 
 const dialogFormVisible = ref(false)
+const tableIsEdit = ref(false)
 const data = reactive({
   hostlist: [],
   serverlist: [],
@@ -98,7 +103,19 @@ const resetForm = () =>{
   form.tool = []
   form.hostindex = []
 }
-
+// 提交按钮方法
+const submitServerlist = () => {
+  // console.log(data.serverlist)
+  serverInstall(data.serverlist)
+  .then(res=>{
+    console.log("开始安装")
+  })
+}
+// 删除按钮方法
+const serverDelete = (index) => {
+  delete data.serverlist[index]
+}
+// 添加服务按钮方法
 const submitForm = () =>{
   const server = reactive({
     srvname: "",
@@ -106,7 +123,7 @@ const submitForm = () =>{
     tool: [],
     host: [],
   })
-  // 将form中数据提取出来
+
   server.srvname = form.srv[0]
   if (server.srvname == "base"){
     server.tool = form.tool
@@ -115,23 +132,23 @@ const submitForm = () =>{
     server.mode = form.srv[1]
   }
   for (let i of form.hostindex){
-    server.host.push(data.hostlist[i])
+    const host = reactive({})
+    host.ip = data.hostlist[i].host
+    host.port = data.hostlist[i].port
+    host.user = data.hostlist[i].user
+    host.password = data.hostlist[i].password
+    host.role = ""
+    server.host.push(toRaw(host))
   }
-  if (server.srvname === "mysql" || server.srvname === "mongodb"){
-    for (let i in server.host){
-      server.host[i].role = ""
-    }
-  }
-  const s = toRaw(server)
+
   // 将值保存在serverlist中
-  data.serverlist.push(s)
+  data.serverlist.push(toRaw(server))
+  // console.log(data.serverlist)
   // 重新将form表单初始化
   dialogFormVisible.value = false
   form.srv = ""
   form.tool = []
   form.hostindex = []
-
-  console.log(data.serverlist)
 }
 
 // 后端请求数据方法
