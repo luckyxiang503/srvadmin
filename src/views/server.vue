@@ -78,8 +78,16 @@
 import { ref,reactive,onMounted,toRaw } from 'vue'
 import {getHostlist} from '~/api/host'
 import {serverInstall} from '~/api/server'
-import {initWebSocket,closeWebsocket} from '~/utils/websocket'
+import { userWebsocket } from '~/utils/websocket'
 
+// websocket 相关
+const ws = userWebsocket(handleMessage)
+
+function handleMessage (e) {
+  console.log("websocket message:", e)
+}
+
+// 添加服务定义变量
 const dialogFormVisible = ref(false)
 const tableIsEdit = ref(false)
 const data = reactive({

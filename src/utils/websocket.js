@@ -1,118 +1,41 @@
-import { ElMessage } from "element-plus";
+let url = "ws://localhost:8000/api/wslog"
 
-let socket = "";
-let lockReconnect = false; //是否真正建立连接
-let timeout = 20 * 1000; //20秒一次心跳
-let timeoutObj = null; //心跳心跳倒计时
-let serverTimeoutObj = null; //心跳倒计时
-let timeoutnum = null;
-let global_callback = null;
-let weburl = "ws://127.0.0.1:8000/api/wslog";
+function userWebsocket (handleMessage){
+    const ws = new WebSocket(url)
 
-export const sendWebsocket = function(agentData, callback) {
-    global_callback = callback;
-    socketOnSend(agentData);
-}
-
-/**
- * 关闭websocket函数
- */
-export const closeWebsocket = function() {
-    if (socket) {
-        socket.close();
+    const init = () => {
+        bindEvent();
     }
-    clearTimeout(timeoutObj);
-    clearTimeout(serverTimeoutObj);
-}
 
-export const initWebSocket = function() {
-    if (!window.WebSocket) {
-        ElMessage.error({
-            message: "您的浏览器不支持websocket,请升级或更换浏览器！",
-            type: "error",
-            center: true,
-        });
-        return;
+    function bindEvent(){
+        ws.addEventListener('open', handleOpen, false)
+        ws.addEventListener('close', handleClose, false)
+        ws.addEventListener('error', handleError, false)
+        ws.addEventListener('message', handleMessage, false)
     }
-    if (!socket) {
-        socket = new WebSocket(weburl);
-        socketOnOpen();
-        socketOnClose();
-        socketOnError();
-        socketOnMessage();
+    
+    function handleOpen(e){
+        console.log("websocket open", e)
     }
-}
 
-function reconnect() {
-    if (lockReconnect) {
-        return;
+    function handleClose(e){
+        console.log("websocket close", e)
     }
-    lockReconnect = true;
-    //没连接上会一直重连，设置延迟避免请求过多
-    timeoutnum && clearTimeout(timeoutnum);
-    timeoutnum = setTimeout(function() {
-        //新连接
-        initWebSocket();
-        lockReconnect = false;
-    }, 5000);
-}
-//重置心跳
-function reset() {
-    //清除时间
-    clearTimeout(timeoutObj);
-    clearTimeout(serverTimeoutObj);
-    //重启心跳
-    start();
-}
-//开启心跳
-function start() {
-    timeoutObj && clearTimeout(timeoutObj);
-    serverTimeoutObj && clearTimeout(serverTimeoutObj);
-    timeoutObj = setTimeout(function() {
-        //这里发送一个心跳，后端收到后，返回一个心跳消息，
-        if (socket.readyState == 1) {
-            //如果连接正常
-            socket.send('{"toUserId":"hk"}');
-            console.log("发送消息");
-        } else {
-            //否则重连
-            reconnect();
-        }
-        serverTimeoutObj = setTimeout(function() {
-            //超时关闭
-            socket.close();
-        }, timeout);
-    }, timeout);
+
+    function handleError(e){
+        console.log("websocket error", e)
+    }
+
+    init()
+
+    return ws
 }
 
-function socketOnOpen() {
-    socket.onopen = () => {
-        console.log("socket连接成功");
-        start();
-    };
-}
 
-function socketOnClose() {
-    socket.onclose = () => {
-        console.log("socket已经关闭");
-    };
-}
 
-function socketOnSend(data) {
-    //数据发送
-    socket.send(data);
-}
 
-function socketOnError() {
-    socket.onerror = () => {
-        reconnect();
-        console.log("socket 链接失败");
-    };
-}
 
-function socketOnMessage() {
-    socket.onmessage = (e) => {
-        global_callback(e.data);
-        reset();
-    };
+
+export default {
+    userWebsocket,
 }
