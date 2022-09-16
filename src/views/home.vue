@@ -18,7 +18,7 @@
                   <el-icon style="margin-left: 8px; margin-top: 1px"><ArrowDown /></el-icon>
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item>修改信息</el-dropdown-item>
+                    <!-- <el-dropdown-item>修改信息</el-dropdown-item> -->
                     <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
                   </el-dropdown-menu>
                   </template>
@@ -29,7 +29,7 @@
         </el-header>     
       <el-container>
         <!-- 左边侧边栏 -->
-        <el-aside width="300px">
+        <el-aside>
           <el-scrollbar>
             <el-menu
             active-text-color="#ffd04b"
@@ -113,12 +113,13 @@ const logout = () => {
   height: 100%;
 }
 .layout-container .el-aside {
+  width: 15%;
   height: 100%;
   background-color: rgb(84, 92, 100);
 }
-/* .layout-container .el-main {
-  height: 800px;
-} */
+.layout-container .el-main {
+  height: 100%;
+}
 .layout-container .toolbar {
   display: inline-flex;
   align-items: center;

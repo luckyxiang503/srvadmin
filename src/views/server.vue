@@ -7,12 +7,6 @@
       <el-form-item label="srvname">
         <el-cascader v-model="form.srv" :options="servershow.server" clearable />
       </el-form-item>
-      <el-form-item label="基础安装工具">
-        <el-select v-model="form.tool" multiple placeholder="srvname为base时生效">
-        <el-option
-          v-for="item in servershow.tool" :value="item.value"/>
-        </el-select>
-      </el-form-item>
       <!-- 主机表格 -->
       <el-form-item label="安装主机">
         <el-select v-model="form.hostindex" multiple placeholder="host">
@@ -31,16 +25,12 @@
       </span>
     </template>
   </el-dialog>
-  <!-- ------------------------- -->
+  <!-- ------------ 服务表格 ------------- -->
   <el-scrollbar>
-    <el-table :data="data.serverlist" :default-expand-all='tableIsEdit' style="width: 100%" height="750px">
+    <el-table :data="data.serverlist" :default-expand-all='true' style="width: 100%" height="750px">
       <el-table-column type="expand">
         <template #default="props">
           <div m="4">
-            <p m="t-0 b-2">srvname:  {{ props.row.srvname }}</p>
-            <p m="t-0 b-2" v-if="props.row.mode">mode:  {{ props.row.mode }}</p>
-            <p m="t-0 b-2" v-if="props.row.tool.length !== 0">tool:  {{ props.row.tool }}</p>
-            <br>
             <el-table :data="props.row.host">
               <el-table-column label="主机" prop="ip" />
               <el-table-column label="端口" prop="port" />
@@ -78,16 +68,11 @@
 import { ref,reactive,onMounted,toRaw } from 'vue'
 import {getHostlist} from '~/api/host'
 import {serverInstall} from '~/api/server'
-import { userWebsocket } from '~/utils/websocket'
+import { useRouter } from 'vue-router'
 
-// websocket 相关
-const ws = userWebsocket(handleMessage)
+const router = useRouter()
 
-function handleMessage (e) {
-  console.log("websocket message:", e)
-}
-
-// 添加服务定义变量
+// 添加服务,变量定义
 const dialogFormVisible = ref(false)
 const tableIsEdit = ref(false)
 const data = reactive({
@@ -96,10 +81,8 @@ const data = reactive({
 })
 const form = reactive({
   srv: "",
-  tool: [],
   hostindex: [],
 })
-
 
 onMounted(()=>{
   requestHostlist()
@@ -108,34 +91,32 @@ onMounted(()=>{
 const resetForm = () =>{
   dialogFormVisible.value = false
   form.srv = ""
-  form.tool = []
   form.hostindex = []
 }
 // 提交按钮方法
 const submitServerlist = () => {
   // console.log(data.serverlist)
+
+  // 调用服务安装接口
   serverInstall(data.serverlist)
   .then(res=>{
     console.log("开始安装")
+    router.push('/serverlog')
   })
 }
 // 删除按钮方法
 const serverDelete = (index) => {
-  delete data.serverlist[index]
+  data.serverlist.splice(index, 1)
 }
 // 添加服务按钮方法
 const submitForm = () =>{
   const server = reactive({
     srvname: "",
     mode: "",
-    tool: [],
     host: [],
   })
 
   server.srvname = form.srv[0]
-  if (server.srvname == "base"){
-    server.tool = form.tool
-  }
   if (form.srv.length == 2){
     server.mode = form.srv[1]
   }
@@ -146,16 +127,15 @@ const submitForm = () =>{
     host.user = data.hostlist[i].user
     host.password = data.hostlist[i].password
     host.role = ""
-    server.host.push(toRaw(host))
+    server.host.push(host)
   }
 
   // 将值保存在serverlist中
-  data.serverlist.push(toRaw(server))
+  data.serverlist.push(server)
   // console.log(data.serverlist)
   // 重新将form表单初始化
   dialogFormVisible.value = false
   form.srv = ""
-  form.tool = []
   form.hostindex = []
 }
 
@@ -206,29 +186,11 @@ const servershow = {
         {value: "zookeeper-cluster", label: "zookeeper-cluster"},
     ]},
   ],
-  tool: [
-    {value: "tsar"},
-    {value: "netdata"},
-    {value: "sysstat"},
-    {value: "iotop"},
-    {value: "iftop"},
-    {value: "dstat"},
-    {value: "net-tools"},
-    {value: "glances"},
-    {value: "asciinema"},
-    {value: "clamav"},
-  ],
   role: [
     {value: "mysql",label: "mysql",
     children: [
       {value: "master",label: "master",},
       {value: "slave",label: "slave",},
-    ]},
-    {value: "mongodb",label: "mongodb",
-    children: [
-      {value: "shard ",label: "shard",},
-      {value: "configsrv",label: "configsrv",},
-      {value: "mongos",label: "mongos",},
     ]},
   ]
 }
