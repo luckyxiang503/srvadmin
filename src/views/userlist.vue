@@ -155,7 +155,7 @@ const handleDelete = (index: number, row) => {
   deleteUser(row.username)
   .then(res=>{
     if (res.status==200){
-      delete data.userlist[index]
+      data.userlist.splice(index, 1)
     }
   })
 }

@@ -42,12 +42,14 @@
                   <span>主页</span>
                 </template>
               </el-menu-item>
-              <el-menu-item index="2" @click="open('/server')">
+              <el-sub-menu index="2">
                 <template #title>
                   <el-icon><setting /></el-icon>
                   <span>服务管理</span>
                 </template>
-              </el-menu-item>
+                <el-menu-item index="2-1" @click="open('/server')">服务添加</el-menu-item>
+                <el-menu-item index="2-2" @click="open('/serverrecord')">安装记录</el-menu-item>
+              </el-sub-menu>
               <el-menu-item index="3" @click="open('/hostlist')">
                 <template #title>
                   <el-icon><Connection /></el-icon>

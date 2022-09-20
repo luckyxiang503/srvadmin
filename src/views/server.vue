@@ -27,27 +27,21 @@
   </el-dialog>
   <!-- ------------ 服务表格 ------------- -->
   <el-scrollbar>
-    <el-table :data="data.serverlist" :default-expand-all='true' style="width: 100%" height="750px">
-      <el-table-column type="expand">
-        <template #default="props">
-          <div m="4">
-            <el-table :data="props.row.host">
-              <el-table-column label="主机" prop="ip" />
-              <el-table-column label="端口" prop="port" />
-              <el-table-column label="用户" prop="user" />
-              <el-table-column label="密码" prop="password"/>
-              <el-table-column label="role" prop="role">
-                <template #default="scope">
-                  <span v-show="!tableIsEdit">{{ scope.row.role }}</span>
-                  <input v-show="tableIsEdit" type="text" v-model="scope.row.role">
-                </template>
-              </el-table-column>
-            </el-table>
-          </div>
-        </template>
-      </el-table-column>
+    <el-table :data="data.serverlist" style="width: 100%" max-height="800px">
       <el-table-column label="服务名称" prop="srvname" />
       <el-table-column label="安装模式" prop="mode" />
+      <el-table-column label="安装机器" min-width="200px">
+        <template #default="scope">
+          <el-row v-for="host of scope.row.host">
+            <el-col :span="12"><li>{{ host.ip }}</li></el-col>
+            <el-col :span="12" v-if="scope.row.srvname == 'mysql' || scope.row.srvname == 'fdfs'">
+              <el-select v-model="host.role" placeholder="role" size="small" clearable>
+                <el-option v-for="item in servershow.role" :label="item.label" :value="item.value"/>
+              </el-select>
+            </el-col>
+          </el-row>
+        </template>
+      </el-table-column>
       <!-- 表格按钮 -->
       <el-table-column align="right">
       <template #header>
@@ -55,8 +49,6 @@
         <el-button size="small" type="success" @click="submitServerlist">提交</el-button>
       </template>
       <template #default="scope">
-        <el-button size="small" v-if="!tableIsEdit" @click="tableIsEdit = true">编辑</el-button>
-        <el-button size="small" v-if="tableIsEdit" @click="tableIsEdit = false">保存</el-button>
         <el-button size="small" type="danger" @click="serverDelete(scope.$index)">删除</el-button>
       </template>
     </el-table-column>
@@ -74,7 +66,6 @@ const router = useRouter()
 
 // 添加服务,变量定义
 const dialogFormVisible = ref(false)
-const tableIsEdit = ref(false)
 const data = reactive({
   hostlist: [],
   serverlist: [],
@@ -96,12 +87,13 @@ const resetForm = () =>{
 // 提交按钮方法
 const submitServerlist = () => {
   // console.log(data.serverlist)
-
   // 调用服务安装接口
   serverInstall(data.serverlist)
   .then(res=>{
-    console.log("开始安装")
-    router.push('/serverlog')
+    if (res.status==200){
+      console.log("开始安装")
+      router.push('/serverrecord')
+    }
   })
 }
 // 删除按钮方法
@@ -123,9 +115,6 @@ const submitForm = () =>{
   for (let i of form.hostindex){
     const host = reactive({})
     host.ip = data.hostlist[i].host
-    host.port = data.hostlist[i].port
-    host.user = data.hostlist[i].user
-    host.password = data.hostlist[i].password
     host.role = ""
     server.host.push(host)
   }
@@ -187,11 +176,10 @@ const servershow = {
     ]},
   ],
   role: [
-    {value: "mysql",label: "mysql",
-    children: [
-      {value: "master",label: "master",},
-      {value: "slave",label: "slave",},
-    ]},
+    {value: "master",label: "mysql-master"},
+    {value: "slave",label: "mysql-slave"},
+    {value: "tracker",label: "fdfs-tracker"},
+    {value: "storage",label: "fdfs-storage"},
   ]
 }
 </script>

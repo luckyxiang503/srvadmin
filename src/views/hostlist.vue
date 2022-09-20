@@ -163,7 +163,7 @@ const handleDelete = (index: number, row) => {
   deleteHost(row.host)
   .then(res=>{
     if (res.status==200){
-      delete data.hostlist[index]
+      data.hostlist.splice(index, 1)
     }
   })
 }
