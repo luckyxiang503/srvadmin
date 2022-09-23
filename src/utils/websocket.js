@@ -1,13 +1,9 @@
-let url = "ws://localhost:8000/api/wslog"
-
 export function userWebsocket(handleMessage) {
+    let url = "ws://localhost:8000/api/wslog"
+
     const ws = new WebSocket(url)
 
     const init = () => {
-        bindEvent();
-    }
-
-    function bindEvent() {
         ws.addEventListener('open', handleOpen, false)
         ws.addEventListener('close', handleClose, false)
         ws.addEventListener('error', handleError, false)
@@ -27,6 +23,5 @@ export function userWebsocket(handleMessage) {
     }
 
     init()
-
     return ws
 }

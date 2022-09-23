@@ -1,8 +1,8 @@
 import request from '~/utils/axios'
 
-export function serverInstall(data) {
+export function serversaveinfo(data) {
     return request({
-        url: '/server',
+        url: '/srvsaveinfo',
         method: "post",
         data: data,
     });
@@ -15,20 +15,20 @@ export function getServerlist() {
     });
 }
 
-export function deleteServer(id) {
+export function deleteServer(ids) {
     return request({
         url: '/server',
         method: "delete",
-        params: {
-            id: id
-        },
+        data: ids,
     });
 }
 
-export function reInstall(ids) {
+export function serverinstall(id) {
     return request({
-        url: '/reinstall',
+        url: '/server',
         method: "post",
-        data: ids,
+        params: {
+            srvid: id
+        },
     });
 }

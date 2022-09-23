@@ -59,8 +59,9 @@
 <script setup>
 import { ref,reactive,onMounted,toRaw } from 'vue'
 import {getHostlist} from '~/api/host'
-import {serverInstall} from '~/api/server'
+import {serversaveinfo} from '~/api/server'
 import { useRouter } from 'vue-router'
+import { ElMessage } from "element-plus";
 
 const router = useRouter()
 
@@ -87,11 +88,15 @@ const resetForm = () =>{
 // 提交按钮方法
 const submitServerlist = () => {
   // console.log(data.serverlist)
-  // 调用服务安装接口
-  serverInstall(data.serverlist)
+  // 调用服务信息保存接口
+  serversaveinfo(data.serverlist)
   .then(res=>{
     if (res.status==200){
-      console.log("开始安装")
+      ElMessage({
+        message: "服务信息保存成功",
+        type: "success",
+        duration: 1000,
+      })
       router.push('/serverrecord')
     }
   })
@@ -142,6 +147,7 @@ const servershow = {
     {value: "jdk", label: "jdk"},
     {value: "app", label: "app"},
     {value: "nginx", label: "nginx"},
+    {value: "fdfs", label: "fdfs"},
     {value: "redis", label: "redis", 
     children: [
         {value: "redis-single", label: "redis-single"},
