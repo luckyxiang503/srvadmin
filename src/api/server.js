@@ -32,3 +32,12 @@ export function serverinstall(id) {
         },
     });
 }
+
+export function servercheck(data) {
+    return request({
+        url: '/servercheck',
+        method: "post",
+        data: data,
+        timeout: 20000,
+    });
+}

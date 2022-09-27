@@ -69,12 +69,14 @@ const onSubmit = () => {
         if(!valid){
             return false
         }
-        store.dispatch("userLoginAction", form);
-        ElMessage({
-            message: "成功登录.",
-            type: "success",
-            duration: 1000,
-        });
+        store.dispatch("userLoginAction", form)
+        .then(()=>{
+            ElMessage({
+                message: "成功登录.",
+                type: "success",
+                duration: 1000,
+            });
+        })
     })
 }
 </script>

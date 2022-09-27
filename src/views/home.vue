@@ -56,12 +56,18 @@
                   <span>主机管理</span>
                 </template>
               </el-menu-item>
-              <el-menu-item index="4" @click="open('/userlist')">
+              <el-menu-item index="4" @click="open('/servercheck')">
+                <template #title>
+                  <el-icon><Check /></el-icon>
+                  <span>服务检查</span>
+                </template>
+              </el-menu-item>
+              <!-- <el-menu-item index="5" @click="open('/userlist')">
                 <template #title>
                   <el-icon><User /></el-icon>
                   <span>用户管理</span>
                 </template>
-              </el-menu-item>
+              </el-menu-item> -->
             </el-menu>
           </el-scrollbar>
         </el-aside>

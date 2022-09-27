@@ -7,6 +7,7 @@ import index from "~/views/index.vue";
 import server from "~/views/server.vue"
 import serverrecord from "~/views/serverrecord.vue"
 import userlist from "~/views/userlist.vue"
+import servercheck from "~/views/servercheck.vue"
 import hostlist from "~/views/hostlist.vue"
 import NotFound from "~/views/error.vue";
 
@@ -21,6 +22,7 @@ const routes = [{
             { path: '/serverrecord', name: serverrecord, component: serverrecord },
             { path: '/userlist', name: userlist, component: userlist },
             { path: '/hostlist', name: hostlist, component: hostlist },
+            { path: '/servercheck', name: servercheck, component: servercheck },
         ]
     },
     {

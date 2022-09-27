@@ -33,12 +33,12 @@
         </template>
         <template #default="scope">
           <el-button size="small" :disabled="scope.row.status === 1" type="primary" @click="handInstall(scope.row.status, scope.row.id)">安装</el-button>
-          <el-button size="small" @click="handleReadLog(scope.row.logfile)">查看日志</el-button>
+          <el-button size="small" @click="handleReadLog(scope.row.id,scope.row.logfile)">查看日志</el-button>
         </template>
       </el-table-column>
     </el-table>
     <div class="div-1">
-      <el-button size="small" type="primary" plain @click="handleReadLog('ServerMsg.txt')">服务安装信息</el-button>
+      <el-button @click="handleReadLog('ServerMsg.txt')">服务安装信息</el-button>
   </div>
   </el-scrollbar>
   <!-- 日志显示区域 -->
@@ -93,7 +93,7 @@ async function handInstall(status, id) {
       serverinstall(id).then(res=>{
       if (res.status==200) {
           ElMessage({
-            message: "开始安装",
+            message: res.data.msg,
             type: "success",
             duration: 1000,
           })
@@ -107,7 +107,7 @@ async function handInstall(status, id) {
     serverinstall(id).then(res=>{
     if (res.status==200) {
         ElMessage({
-          message: "开始安装",
+          message: res.data.msg,
           type: "success",
           duration: 1000,
         })
@@ -135,12 +135,12 @@ async function handleMessage (e) {
 }
 
 // 查看日志按钮方法
-async function handleReadLog(logfile) {
+async function handleReadLog(id,logfile) {
   drawer.value = true
   ws = await userWebsocket(handleMessage)
   let r = setInterval(function (){
     if (ws.readyState === 1) {
-      ws.send(logfile)
+      ws.send(`{"id":${id},"logfile":"${logfile}"}`)
       clearInterval(r)
     }
   }, 500)
@@ -216,7 +216,7 @@ const handleSelectionChange = (val) => {
 .div-1 {
   padding: 20px 30px 0px;
   display:flex;
-  justify-content: right;
+  justify-content: center;
 }
 .el-drawer {
   background: #606266;

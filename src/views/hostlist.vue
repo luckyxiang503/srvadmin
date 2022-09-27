@@ -65,7 +65,8 @@ const data = reactive({
       host: "",
       port: 22,
       user: "root",
-      password: ""
+      password: "",
+      sys_version: "",
     }
 })
 // 添加主机相关
