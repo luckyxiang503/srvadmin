@@ -38,7 +38,7 @@
       </el-table-column>
     </el-table>
     <div class="div-1">
-      <el-button @click="handleReadLog('ServerMsg.txt')">服务安装信息</el-button>
+      <el-button @click="handleReadLog(null,'ServerMsg.txt')">服务安装信息</el-button>
   </div>
   </el-scrollbar>
   <!-- 日志显示区域 -->

@@ -1,6 +1,6 @@
 <template>
   <el-scrollbar>
-    <el-table :data="data.checklist" height="750px" style="width: 100%">
+    <el-table :data="data.checklist" max-height="800px" style="width: 100%">
     <el-table-column type="index" />
     <el-table-column label="host" prop="host" />
     <el-table-column label="状态" prop="status"/>
